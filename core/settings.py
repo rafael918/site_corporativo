@@ -63,7 +63,7 @@ if not DEBUG:
 
 # Application definition
 
-INSTALLED_APPS = [
+DJANGO_APPS= [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -77,7 +77,7 @@ THIRD_APPS = [
 ]
 
 PROJECT_APPS = [
-    #'apps.base',
+    'apps.base',
     #'apps.myapp',
 ]
 INSTALLED_APPS = DJANGO_APPS + THIRD_APPS + PROJECT_APPS # type: ignore
