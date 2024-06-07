@@ -77,6 +77,7 @@ THIRD_APPS = [
 ]
 
 PROJECT_APPS = [
+    'apps.contas',
     'apps.base',
     'apps.pages', 
 ]
@@ -117,6 +118,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
+
+AUTH_USER_MODEL = "contas.MyUser"
 
 
 # Database
