@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from contas.models import MyUser 
 
 class CustomUserCreationForm(UserCreationForm):
+    
     password1 = forms.CharField(label="Senha", widget=forms.PasswordInput) 
     password2 = forms.CharField(label="Confirmação de Senha", widget=forms.PasswordInput)
 
@@ -33,6 +34,7 @@ class CustomUserCreationForm(UserCreationForm):
             raise ValidationError("Senha não estão iguais!")
         return password2
 
+    
     def save(self, commit=True):
         # Save the provided password in hashed format
         user = super().save(commit=False)
@@ -40,3 +42,27 @@ class CustomUserCreationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+    
+    #class UserChangeForm(forms.ModelForm):
+    class Meta:
+        model = MyUser
+        fields = ['email', 'first_name', 'last_name','is_active']
+        help_texts = {'username': None}
+        labels = {
+            'email': 'Email', 
+            'first_name': 'Nome', 
+            'last_name': 'Sobrenome', 
+            'is_active': 'Usúario Ativo?'
+        }
+    
+    def __init__(self, *args, **kwargs):
+            self.user = kwargs.pop('user', None) # get the 'user' from kwargs dictionary
+            super().__init__(*args, **kwargs)
+            if not self.user.groups.filter(name__in=['administrador','colaborador']).exists():
+                for group in ['is_active']: 
+                    del self.fields[group]
+            for field_name, field in self.fields.items():
+                if field.widget.__class__ in [forms.CheckboxInput, forms.RadioSelect]:
+                    field.widget.attrs['class'] = 'form-check-input'
+                else:
+                    field.widget.attrs['class'] = 'form-control'
