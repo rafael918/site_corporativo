@@ -64,6 +64,7 @@ if not DEBUG:
 # Application definition
 
 DJANGO_APPS= [
+    'apps.contas',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -77,7 +78,7 @@ THIRD_APPS = [
 ]
 
 PROJECT_APPS = [
-    'apps.contas',
+    
     'apps.base',
     'apps.pages', 
 ]
@@ -197,7 +198,7 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
