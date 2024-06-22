@@ -21,9 +21,10 @@ from django.urls import path, include # adicionar include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('contas/', include ('contas.urls')), #url do app
-    path('perfil/', include('perfil.urls')), # url do app
-    path('', include('pages.urls')), # url do app
+    path('contas/', include ('contas.urls')), 
+    path('perfil/', include('perfil.urls')), 
+    path('config/', include('config.urls')),
+    path('', include('pages.urls')), 
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
