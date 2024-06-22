@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login , logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required 
 from django.shortcuts import render, redirect, get_object_or_404
+from core import settings
 from perfil.forms import PerfilForm
 from perfil.models import Perfil
 from contas.permissions import grupo_colaborador_required
@@ -62,7 +63,8 @@ def login_view(request):
 	      return redirect('home')
 	
 	else:
-            messages.error(request, 'Email ou senha inválidos')
+        messages.error(request, 'se ewrro persistir entre em contatto com  administrador do  sitema.')
+
     if request.user.is_authenticated:
         return redirect('home')
     return render(request, 'login.html')
@@ -77,13 +79,31 @@ def register_view(request):
         if form.is_valid():
             usuario = form.save(commit=False)
             usuario.is_valid = False
+            usuario.is_active = False # adiciona isso.
             usuario.save()
             
             group = Group.objects.get(name='usuario')
             usuario.groups.add(group)
             
-            messages.success(request, 'Registrado. Agora faça o login para começar!')
-            return redirect('login')
+            Perfil.objects.create(usuario=usuario) # cria instancia perfil do  usuario
+            
+            # Envia e-mail para usuário
+            Send_mail( # Envia email para usuario
+        'Cadastro Plataforma',
+        f'Olá, {usuario.first_name}, em breve você receberá um e-mail de \
+            aprovação para usar a plataforma.',
+        settings .DEFAULT_FROM_EMAIL, # De (em produção usar o e-mail que está no settings)
+        [usuario.email], # para
+        fail_silently=False,
+    )
+            
+    messages.success(request, 'Registrado. Um e-mail foi enviado \
+        para administrador aprovar. Aguarde contato')
+            
+            
+            #messages.success(request, 'Registrado. Agora faça o login para começar!')
+            #return redirect('login')
+            
         else:
             # Tratar quando usuario já existe, senhas... etc...
             messages.error(request, 'A senha deve ter pelo menos 1 caractere maiúsculo, \
@@ -92,6 +112,7 @@ def register_view(request):
     return render(request, "registration/register.html",{"form": form})
 
 
+    # atualizar_meu_usuario 
 @login_required()
 def atualizar_meu_usuario(request):
     if request.method == 'POST':
@@ -105,6 +126,7 @@ def atualizar_meu_usuario(request):
     return render(request, 'user_update.html', {'form': form})
 
 
+# atualizar qualquer usuario pelo  parametro usaername
 @login_required()
 @grupo_colaborador_required(['administrador','colaborador'])
 def atualizar_usuario(request, username):
@@ -113,11 +135,29 @@ def atualizar_usuario(request, username):
         form = UserChangeForm(request.POST, instance=user, user=request.user)
         if form.is_valid():
             form.save()
+        if user.is_active: ## se usuario for ativado a gente muda o status para True e envia e-mail
+                usuario.is_active = True # muda status para True (Aprovado)
+                print(usuario.is_active)
+                # Envia e-mail avisando usuário.
+                send_mail( # Envia email para usuario
+                    'Cadastro Aprovado',
+                    f'Olá, {usuario.first_name}, seu e-mail foi aprovado na plataforma.',
+                    settings.DEFAULT_FROM_EMAIL, # De (em produção usar o e-mail que está no settings)
+                    [usuario.email], # para
+                    fail_silently=False,
+                )
+                messages.success(request, 'O usuário '+ usuario.email +'\
+                    foi atualizado com sucesso!')
+                return redirect('lista_usuarios')
+            usuario.save()   
             messages.success(request, 'O perfil de usuário foi atualizado com sucesso!')
             return redirect('home')
-    else:
+        
+        else:
         form = UserChangeForm(instance=user, user=request.user)
     return render(request, 'user_update.html', {'form': form})
+
+#  lista de todos os usuarios
 
 @login_required
 @grupo_colaborador_required(['administrador','colaborador'])
