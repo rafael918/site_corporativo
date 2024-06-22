@@ -1,5 +1,5 @@
 {% extends 'base_auth.html' %}
-{% block title %}Login{% endblock %}
+{% block title %}Registrar{% endblock %}
 {% block content_auth %}
 <form class="row" method="post" action="{% url 'register' %}">
     {% csrf_token %}

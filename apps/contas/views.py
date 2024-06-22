@@ -8,6 +8,7 @@ from contas.permissions import grupo_colaborador_required
 from contas.models import MyUser
 from contas.forms import CustomUserCreationForm, UserChangeForm
 
+
 # Rota Timeout (Desconecta por inatividade)
 
 def timeout_view(request):
@@ -16,6 +17,7 @@ def timeout_view(request):
 def logout_view(request):
     logout(request)
     return redirect('home')
+
 
 #login
 def login_view(request):
@@ -32,7 +34,8 @@ def login_view(request):
         return redirect('home')
     return render(request, 'login.html')
 
-#  register
+
+# register
 def register_view(request):
     if request.user.is_authenticated:
         return redirect('home')
@@ -42,8 +45,10 @@ def register_view(request):
             usuario = form.save(commit=False)
             usuario.is_valid = False
             usuario.save()
+            
             group = Group.objects.get(name='usuario')
             usuario.groups.add(group)
+            
             messages.success(request, 'Registrado. Agora faça o login para começar!')
             return redirect('login')
         else:
@@ -67,11 +72,10 @@ def atualizar_meu_usuario(request):
     return render(request, 'user_update.html', {'form': form})
 
 
-
 @login_required()
 @grupo_colaborador_required(['administrador','colaborador'])
-def atualizar_usuario(request, user_id):
-    user = get_object_or_404(MyUser, pk=user_id)
+def atualizar_usuario(request, username):
+    user = get_object_or_404(MyUser, username)
     if request.method == 'POST':
         form = UserChangeForm(request.POST, instance=user, user=request.user)
         if form.is_valid():
