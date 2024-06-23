@@ -51,7 +51,9 @@
                                 <button type="button" class="btn btn-light" aria-current="true" 
                                 onclick="location.href='{% url 'painel' %}'">
                                 <i class="fas fa-tachometer-alt me-2"></i>Painel</button>
-            <button type="button" class="btn btn-light"><i class="fas fa-file-alt me-2"></i>Relatórios</button>
+                                
+                                <button type="button" class="btn btn-light" onclick="location.href='{% url 'relatorio' %}'">
+                                    <i class="fas fa-file-alt me-2"></i>Relatórios</button>
 
             {% if perms.contas.view_myuser %}
             <button type="button" class="btn btn-light" onclick="location.href='{% url 'lista_usuarios' %}'">
