@@ -81,9 +81,9 @@ THIRD_APPS = [
 PROJECT_APPS = [
     'apps.base',
     'apps.config',
-    'apps.perfil', # adicionar
+    'apps.perfil', 
     'apps.pages', 
-    'apps.forum', # Adiciona
+    'apps.forum',
 ]
 INSTALLED_APPS = DJANGO_APPS + THIRD_APPS + PROJECT_APPS # type: ignore
 
