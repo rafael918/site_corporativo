@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login , logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required 
 from django.shortcuts import render, redirect, get_object_or_404
+from base.utils import add_form_errors_to_messages
 from core import settings
 from perfil.forms import PerfilForm
 from perfil.models import Perfil
@@ -121,6 +122,7 @@ def atualizar_meu_usuario(request):
             form.save()
             messages.success(request, 'Seu perfil foi atualizado com sucesso!')
             return redirect('home')
+        else: add_form_errors_to_messages(request,form)
     else:
         form = UserChangeForm(instance=request.user, user=request.user)
     return render(request, 'user_update.html', {'form': form})
@@ -149,9 +151,12 @@ def atualizar_usuario(request, username):
                 messages.success(request, 'O usuário '+ usuario.email +'\
                     foi atualizado com sucesso!')
                 return redirect('lista_usuarios')
+            
             usuario.save()   
             messages.success(request, 'O perfil de usuário foi atualizado com sucesso!')
             return redirect('home')
+        
+    else: add_form_errors_to_messages(request, form)
         
         else:
         form = UserChangeForm(instance=user, user=request.user)
@@ -190,13 +195,9 @@ def adicionar_usuario(request):
             messages.success(request, 'Usuário adicionado com sucesso.')
             return redirect('lista_usuarios')
         else:
-            # verifica os erros  individualmente para cada campo  do  formulario
-            for field, error_list in user_form.errors.items():
-                for error in  error_list:
-                    messages.error(request, f"Erro no campo '{user_form[field].label}' :{error}")
-            for field, error_list in user_form.errors.items():
-                for error in  error_list:
-                    messages.error(request, f"Erro no campo '{perfil_form[field].label}' :{error}")
+        # Adicionar mensagens de erro aos campos dos formulários
+        add_form_errors_to_messages(request, user_form)
+        add_form_errors_to_messages(request, perfil_form)
                     
         context = {'user_form': user_form, 'perfil_form': perfil_form}
     return render(request, "adicionar-usuario.html", context)

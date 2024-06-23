@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+import re
 from django.core.exceptions import ValidationError
 from contas.models import MyUser 
 
@@ -33,6 +34,24 @@ class CustomUserCreationForm(forms.ModelForm):
                 field.widget.attrs['class'] = 'form-check-input'
             else:
                 field.widget.attrs['class'] = 'form-control'
+                
+                import re
+
+def clean_password1(self):
+	password1 = self.cleaned_data.get('password1')
+	if len(password1) < 8:
+	    raise forms.ValidationError("A senha deve conter pelo menos 8 caracteres.")
+			
+			# Verifique se a senha contém pelo menos uma letra maiúscula, uma letra minúscula e um caractere especial
+		   maiusculas=re.search(r'[A-Z]', password1)
+			minusculas=re.search(r'[a-z]', password1)
+			caract_esp=re.search(r'[!@#$%^&*(),.?":{}|<>]', password1)
+	    if not maiusculas or not minusculas or not caract_esp:
+	        raise forms.ValidationError("A senha deve conter \
+												pelo menos 8 caracteres, uma letra maiúscula, uma letra \
+												minúscula e um caractere especial.")
+	    return password1
+
     
     def clean_password2(self):
         # Check that the two password entries match
