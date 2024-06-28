@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
 {% block title %} Perfil {% endblock title %}
-{% block content % }
 {% block content %} 
 <div class="container mt-3">
     <div class="d-flex flex-wrap gap-5 justify-content-center align-items-center">
@@ -50,9 +49,8 @@
                                         {{postagem.titulo}}</a></h5>
                         <div class="div">
                             {% if postagem.usuario == request.user %}
-                            <a class="btn btn-warning" 
-                                                    href="{% url 'editar-postagem-forum' postagem.id %}">
-                                            <i class="fas fa-edit"></i></a>  
+                            <a class="btn btn-warning" data-bs-toggle="modal" 
+                                                    href="#editarPostagemModal{{postagem.id}}" role="button"> # Adiciona Botão
                             <a class="btn btn-danger" data-bs-toggle="modal" 
                                                     href="#confirmarExclusaoModal{{postagem.id}}" role="button">
                                                         <i class="fas fa-trash"></i></a>  
@@ -69,6 +67,7 @@
                     </div>
                 </div>
             </div>
+            {% include "modal-form-postagem-forum.html" %} # Adiciona formulario do modal
             {% include "modal-deletar-postagem-forum.html" %}
             {% endfor %}
     
