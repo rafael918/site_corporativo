@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404, render
-from forum.forms import PostagemForumForm
+from forms import PostagemForumForm
 from contas.models import MyUser
 
 def perfil_view(request, username):
