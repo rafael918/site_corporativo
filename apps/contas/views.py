@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
+from django.core.paginator import Paginator
 from base.utils import add_form_errors_to_messages
 from core import settings
 from perfil.forms import PerfilForm
@@ -104,20 +105,17 @@ def register_view(request):
 
 
 # Atualizar meu usuário 
-@login_required
-def atualizar_meu_usuario(request):
-    if request.method == 'POST':
-        form = UserChangeForm(request.POST, instance=request.user, user=request.user)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Seu perfil foi atualizado com sucesso!')
-            return redirect('home')
-        else:
-            add_form_errors_to_messages(request, form)
-    else:
-        form = UserChangeForm(instance=request.user, user=request.user)
-    return render(request, 'user_update.html', {'form': form})
+from django.core.paginator import Paginator
 
+@login_required
+@grupo_colaborador_required(['administrador','colaborador'])
+def lista_usuarios(request):
+    lista_usuarios = MyUser.objects.select_related('perfil').filter(is_superuser=False)
+    paginacao = Paginator(lista_usuarios, 3)
+    pagina_numero = request.GET.get("page")
+    page_obj = paginacao.get_page(pagina_numero)
+    context = {'page_obj': page_obj}
+    return render(request, 'lista-usuarios.html', context)
 
 # Atualizar qualquer usuário pelo parâmetro username
 @login_required
@@ -151,12 +149,18 @@ def atualizar_usuario(request, username):
     return render(request, 'user_update.html', {'form': form})
 
 
-# Lista de todos os usuários
+# Lista de todos os usuários do  sistema
+from django.core.paginator import Paginator
+
 @login_required
-@grupo_colaborador_required(['administrador', 'colaborador'])
-def lista_usuarios(request):  # Lista Cliente 
+@grupo_colaborador_required(['administrador','colaborador'])
+def lista_usuarios(request):
     lista_usuarios = MyUser.objects.select_related('perfil').filter(is_superuser=False)
-    return render(request, 'lista-usuarios.html', {'lista_usuarios': lista_usuarios})
+    paginacao = Paginator(lista_usuarios, 5)
+    pagina_numero = request.GET.get("page")
+    page_obj = paginacao.get_page(pagina_numero)
+    context = {'page_obj': page_obj}
+    return render(request, 'lista-usuarios.html', {'page_obj'})
 
 
 @login_required

@@ -67,14 +67,11 @@
                     </div>
                 </div>
             </div>
-            {% include "modal-form-postagem-forum.html" %} # Adiciona formulario do modal
+            {% include "modal-form-postagem-forum.html" %}
             {% include "modal-deletar-postagem-forum.html" %}
             {% endfor %}
-    
+            {% include 'components/paginacao.html' %} 
         </div>
-    </div>
-
-
 </div>
 {% endblock %}
 

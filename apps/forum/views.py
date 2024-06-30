@@ -1,8 +1,9 @@
 import re
+from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
-from base.utils import add_form_errors_to_messages
+from base.utils import add_form_errors_to_messages,filtrar_modelo
 from forum.forms import PostagemForumForm
 from django.contrib import messages  
 from forum import models
@@ -13,30 +14,46 @@ from forum import models
 #context = {'postagens': postagens}
 #return render(request, 'lista-postagem-forum.html', context)
 
-#lista de postagem 
+#lista de postagem forum
 def lista_postagem_forum(request):
     form_dict = {}
-    # valida rotas (forum ou dashbord)
-    if request.path == '/forum/': # Pagina forum da home, mostrar tudo ativo.
+    filtros = {}
+    valor_busca= request.GET.get("titulo")
+    print(valor_busca)
+    if valor_busca:
+        filtros["titulo"] = valor_busca
+        filtros["descricao"]
+        
+    #valida rotas (forum ou  dasboard)
+    if request.path == '/forum/':
         postagens = models.PostagemForum.objects.filter(ativo=True)
-        template_view = 'lista-postagem-forum.html' # lista de post da rota /forum/
-    else: # Essa parte mostra no Dashboard
-        user = request.user 
-        template_view = 'dashboard/dash-lista-postagem-forum.html' # template novo que vamos criar 
+        template_view = 'lista-postagem-forum.html'
+    else:
+        user = request.user
+        template_view = 'dashboard/dash-lista-postagem-forum.html'
         if ['administrador', 'colaborador'] in user.groups.all() or user.is_superuser:
-            # Usuário é administrador ou colaborador, pode ver todas as postagens
             postagens = models.PostagemForum.objects.filter(ativo=True)
         else:
-            # Usuário é do grupo usuário, pode ver apenas suas próprias postagens
             postagens = models.PostagemForum.objects.filter(usuario=user)
-            
-            
-        # Como existe uma lista de objetos, para aparecer o formulário 
-		# correspondente no modal precisamos ter um for
+        postagens = filtrar_modelo(models.PostagemForum, **filtros)
     for el in postagens:
         form = PostagemForumForm(instance=el) 
-        form_dict[el] = form
-    context = {'postagens': postagens,'form_dict': form_dict}
+        form_dict[el] = form 
+        
+    # Criar uma lista de tuplas (postagem, form) a partir do form_dict
+    form_list = [(postagem, form) for postagem, form in form_dict.items()]
+    
+    # Aplicar a paginação à lista de tuplas
+    paginacao = Paginator(form_list, 3) # '3' é numero de registro por pagina
+    
+    # Obter o número da página a partir dos parâmetros da URL
+    pagina_numero = request.GET.get("page")
+    page_obj = paginacao.get_page(pagina_numero)
+    
+    # Criar um novo dicionário form_dict com base na página atual
+    form_dict = {postagem: form for postagem, form in page_obj}
+    
+    context = {'page_obj': page_obj, 'form_dict': form_dict}
     return render(request, template_view, context)
 
 

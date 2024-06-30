@@ -26,7 +26,7 @@
 				</tr>
 			</thead>
             
-			{% for usuario in lista_usuarios %}
+			{% for usuario in page_obj %}
 			<tbody>
 				<tr>
                     <td scope="row">{{ usuario.id }}</td>
@@ -61,4 +61,5 @@
 		</table>
 	</div>
 </div>
+{% include 'components/paginacao.html' %} # Adciona paginacao
 {% endblock %}
