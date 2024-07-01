@@ -1,29 +1,21 @@
-from django.shortcuts import get_object_or_404, render
-from django.core.paginator import Paginator
-from forms import PostagemForumForm
-from contas.models import MyUser
+from django import forms
+from perfil.models import Perfil
 
-from django.core.paginator import Paginator
+class PerfilForm(forms.ModelForm):
+    descricao = forms.CharField(
+        widget=forms.Textarea(attrs={'rows': 3}),
+        max_length=200
+    )
 
-def perfil_view(request, username):
-    modelo = MyUser.objects.select_related('perfil').prefetch_related('user_postagem_forum')
-    perfil = get_object_or_404(modelo, username=username)
-    form_dict = {}
-    for el in perfil.user_postagem_forum.all():
-        form = PostagemForumForm(instance=el) 
-        form_dict[el] = form
-    
-    # Criar uma lista de tuplas (postagem, form) a partir do form_dict
-    form_list = [(postagem, form) for postagem, form in form_dict.items()]
-    
-    # Aplicar a paginação à lista de tuplas
-    paginacao = Paginator(form_list, 3)
-    
-    # Obter o número da página a partir dos parâmetros da URL
-    pagina_numero = request.GET.get("page")
-    page_obj = paginacao.get_page(pagina_numero)
-    
-    # Criar um novo dicionário form_dict com base na página atual
-    form_dict = {postagem: form for postagem, form in page_obj}
-    context = {'obj': perfil, 'page_obj': page_obj, 'form_dict':form_dict}
-    return render(request, 'perfil.html', context)
+    class Meta:
+        model = Perfil
+        fields = ['foto', 'ocupacao', 'genero', 'telefone', 'cidade', 'estado']
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super(PerfilForm, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            if field.widget.__class__ in [forms.CheckboxInput, forms.RadioSelect]:
+                field.widget.attrs['class'] = 'form-check-input'
+            else:
+                field.widget.attrs['class'] = 'form-control'

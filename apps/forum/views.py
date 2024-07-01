@@ -35,7 +35,9 @@ def lista_postagem_forum(request):
             postagens = models.PostagemForum.objects.filter(ativo=True)
         else:
             postagens = models.PostagemForum.objects.filter(usuario=user)
-        postagens = filtrar_modelo(models.PostagemForum, **filtros)
+            
+        postagens = filtrar_modelo(postagens, **filtros)
+        
     for el in postagens:
         form = PostagemForumForm(instance=el) 
         form_dict[el] = form 
@@ -80,19 +82,19 @@ def lista_postagem_forum(request):
                 add_form_errors_to_messages(request, form)
         return render(request, 'form-postagem-forum.html', {'form': form})
 
-#  detalhes da postagem (id)
-def detalhe_postagem_forum(request, id):
-    postagem = get_object_or_404(models.PostagemForum, id=id)
+#  detalhes da postagem (slug)
+def detalhe_postagem_forum(request, slug):
+    postagem = get_object_or_404(models.PostagemForum, slug=slug)
     form = PostagemForumForm(instance=postagem)
     context = {'postagem' : postagem, 'form' : form}
     return render(request, 'detalhe-postagem-forum.html', {'postagem': postagem})
 
 
-# Editar Postagem (ID)
+# Editar Postagem (slug)
 @login_required
-def editar_postagem_forum(request, id):
+def editar_postagem_forum(request, slug):
     redirect_route = request.POST.get('redirect_route', '') 
-    postagem = get_object_or_404(models.PostagemForum, id=id)
+    postagem = get_object_or_404(models.PostagemForum, slug=slug)
     message = 'Seu Post '+ postagem.titulo +' foi atualizado com sucesso!'
     # Verifica se o usuário autenticado é o autor da postagem
     lista_grupos = ['administrador', 'colaborador']
@@ -122,12 +124,12 @@ def editar_postagem_forum(request, id):
             add_form_errors_to_messages(request, form) 
     return JsonResponse({'status': message}) # Coloca por enquanto.
 
-# DELETAR POSTAGEM (ID)
+# DELETAR POSTAGEM (slug)
 @login_required 
-def deletar_postagem_forum(request, id): 
+def deletar_postagem_forum(request, slug): 
     redirect_route = request.POST.get('redirect_route', '') # adiciono saber a rota que estamos
     print(redirect_route)
-    postagem = get_object_or_404(models.PostagemForum, id=id)
+    postagem = get_object_or_404(models.PostagemForum, slug=slug)
     message = 'Seu Post '+postagem.titulo+' foi deletado com sucesso!' # atualizei a mesnagem aqui
     if request.method == 'POST':
         postagem.delete()

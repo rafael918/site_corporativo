@@ -1,6 +1,9 @@
 from django import forms
+from apps.contas import forms
 from perfil.models import Perfil
-    
+from perfil.forms import PostagemForumForm
+
+
 class PerfilForm(forms.ModelForm):
     descricao = forms.CharField(
         widget=forms.Textarea(attrs={'rows': 3}),

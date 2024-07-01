@@ -8,7 +8,7 @@
 			</div>
 			...
 	< class="modal-body">
-		<form method="post" action="{% url 'editar-postagem-forum' postagem.id %}" enctype="multipart/form-data">
+		<form method="post" action="{% url 'editar-postagem-forum' postagem.slug %}" enctype="multipart/form-data">
 			{% csrf_token %}
 			{{ form.as_p }} 
 					<input type="hidden" name="redirect_route" value="{{ request.path }}">
